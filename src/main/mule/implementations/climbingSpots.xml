@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sys-weathers="http://www.mulesoft.org/schema/mule/sys-weathers"
+	xmlns:sys-openbeta="http://www.mulesoft.org/schema/mule/sys-openbeta"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sys-openbeta http://www.mulesoft.org/schema/mule/sys-openbeta/current/mule-sys-openbeta.xsd
+http://www.mulesoft.org/schema/mule/sys-weathers http://www.mulesoft.org/schema/mule/sys-weathers/current/mule-sys-weathers.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	<sub-flow name="impl-get-climbingSpots" doc:id="c6efcb65-0b81-457f-aedb-3b3e4f3f17f2" >
+		<logger level="DEBUG" doc:name="Start" doc:id="fcbbede9-3be8-4401-ae83-9303f174cdf4" message="#[%dw 2.0&#10;output application/json indent=false&#10;---&#10;{&#10;    step: vars.metadata.startStep,&#10;    data: {&#10;        business: {},&#10;        technical: {&#10;            flowId: vars.metadata.flowId,&#10;            correlationId: vars.metadata.correlationId&#10;        }&#10;    }&#10;}]" category="${app.name}" />
+		<sys-openbeta:retrieve-areas doc:name="Retrieve areas" doc:id="3321618b-ef57-44c1-8fa3-ac7fe58c455b" config-ref="Sys_openbeta_Config" region="#[vars.region]" level="#[vars.level]"/>
+		<logger level="DEBUG" doc:name="After Areas Retrieved" doc:id="0ca1a5e2-fddc-4eb1-8077-4550dfd814ab" message='#[%dw 2.0&#10;output json indent=false&#10;&#10;---&#10;{&#10; step: "After Areas Retrieved",&#10; data: {&#10;  business: {&#10;  	data: payload&#10;  },&#10;  technical: {}&#10; }&#10;}]' category="${app.name}" />
+		<set-variable value="#[payload.*coordinates as Array]" doc:name="[coordinates]" doc:id="9ea76fc0-9337-422a-bcef-34e0933507e5" variableName="coordinates" />
+		<set-variable value="#[[]]" doc:name="init [weathers]" doc:id="a6516eef-49bc-4aba-9ee2-0368059e40b6" variableName="weathers" />
+		<foreach doc:name="For Each [coordinates]" doc:id="4d62d06d-9f2f-408f-878f-a343581476c3" collection="vars.coordinates">
+			<set-variable value="#[payload]" doc:name="[coordinate]" doc:id="1ce2b0b4-514e-41bc-b06f-773b2e878cfd" variableName="coordinate" />
+			<sys-weathers:retrieve-weathers doc:name="Retrieve weathers" doc:id="d46e3a9d-459e-4c3f-9366-fef46d0a9c3a" config-ref="Sys_weathers_Config" latitude="#[payload.latitude]" longitude="#[payload.longitude]"/>
+			<logger level="INFO" doc:name="After weathers request" doc:id="84a7f5ae-cc81-421a-8dd4-05490f5a0998" message='#[output json indent=false&#10; ---&#10;{&#10;	step: "After weathers request $(vars.counter)/$(sizeOf(vars.coordinates))",&#10;	data: {&#10;		business: {&#10;			movieId: payload.id&#10;		},&#10;		technical: {}&#10;	}&#10;}]' category="${app.name}" />
+			<set-variable value="#[output json&#10;---&#10;vars.coordinates as Array &lt;&lt; payload]" doc:name="append [coordinates]" doc:id="da007792-e0f2-4bf0-a0bc-a12da4876f73" variableName="coordinates" />
+		</foreach>
+		<ee:transform doc:name="WDM &amp; ADM to CDM" doc:id="6e89860d-b601-4c2a-baca-258cc7f5aa80">
+			<ee:message>
+				<ee:set-payload resource="modules/TMDBtoMDM.dwl" />
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="After mapping to CDM" doc:id="19f064b9-f34d-478c-b02c-5589a9377767" message='#[output json indent=false &#10;---&#10;{&#10;	step: "After mapping to CDM",&#10;	data: {&#10;		business: {&#10;			moviesIds: payload.*coordinates,&#10;			moviesCount: sizeOf(payload)&#10;		},&#10;		technical: {}&#10;	}&#10;}]' category="${app.name}" />
+		<logger level="DEBUG" doc:name="End" doc:id="5c4044ff-be6a-442a-95d5-e97970175810" message="#[%dw 2.0&#10;output json indent=false&#10;&#10;---&#10;{&#10; step: vars.metadata.endStep,&#10; data: {&#10;  business: {},&#10;  technical: {}&#10; }&#10;}]" category="${app.name}" />
+	</sub-flow>
+</mule>

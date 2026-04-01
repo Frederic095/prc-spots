@@ -33,19 +33,9 @@
     </flow>
     <!-- [STUDIO:"METHOD:\ENDPOINT(URI):prc-spots-api-config"]<flow name="METHOD:\ENDPOINT(URI):prc-spots-api-config" doc:id="fbd353e0-36d4-4c3f-843f-74896877d562" /> [STUDIO] -->
     <flow name="get:\climbing-spots:prc-spots-api-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  correlationId: "fe5zef1-194b-475c-8dee-0zef56zf4180",
-  statusCode: 500,
-  namespace: "APIKIT",
-  identifier: "INTERNAL_SERVER_ERROR",
-  description: "Something went wrong"
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<set-variable value='#[attributes.queryParams.region default ""]' doc:name="[region]" doc:id="2d208192-e823-4797-9ad9-1c3bc5ec7b1e" variableName="region"/>
+		<set-variable value='#[attributes.queryParams.level default ""]' doc:name="[level]" doc:id="a1a13050-0f98-41f6-aec9-3ae2d31eaa55" variableName="level"/>
+		<set-variable value='#[attributes.queryParams.date default ""]' doc:name="[date]" doc:id="52591772-abd5-4cc4-abb0-7d3c65e67971" variableName="date"/>
+		<flow-ref doc:name="impl-get-climbingSpots" doc:id="0cdb4d37-8bd7-4a43-9a4c-67d429c4781f" name="impl-get-climbingSpots"/>
     </flow>
 </mule>

@@ -7,5 +7,27 @@ https:
   port: "8081"
 ################################
 
-system-name:
-  password: "${secure::system-name.password}"
+openbeta:
+  db:
+  host: "localhost"
+  port: "8082"
+  client-id: "a"
+  client-secret: "a"
+
+weathers:
+  host: "localhost"
+  port: "8083"
+  client-id: "a"
+  client-secret: "a"
+
+db:
+  host: "localhost"
+  port: "8084"
+  client-id: "a"
+  client-secret: "a"
+  
+sendgrid:
+  host: "localhost"
+  port: "8085"
+  client-id: "a"
+  client-secret: "a"
