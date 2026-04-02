@@ -1,27 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:sys-weathers="http://www.mulesoft.org/schema/mule/sys-weathers"
-	xmlns:sys-openbeta="http://www.mulesoft.org/schema/mule/sys-openbeta"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:sys-database-api="http://www.mulesoft.org/schema/mule/sys-database-api" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:sys-weathers="http://www.mulesoft.org/schema/mule/sys-weathers"
+	xmlns:sys-openbeta="http://www.mulesoft.org/schema/mule/sys-openbeta" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/sys-openbeta http://www.mulesoft.org/schema/mule/sys-openbeta/current/mule-sys-openbeta.xsd
 http://www.mulesoft.org/schema/mule/sys-weathers http://www.mulesoft.org/schema/mule/sys-weathers/current/mule-sys-weathers.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sys-database-api http://www.mulesoft.org/schema/mule/sys-database-api/current/mule-sys-database-api.xsd">
 	
+	<sub-flow name="impl-post-alerts" doc:id="0026a6d4-da9b-4e1e-a247-9accf0c65609" >
+		<logger level="DEBUG" doc:name="Start" doc:id="3577708c-ac73-4f41-8ada-51fc60301888" message="#[%dw 2.0&#10;output application/json indent=false&#10;---&#10;{&#10;    step: vars.metadata.startStep,&#10;    data: {&#10;        business: {},&#10;        technical: {&#10;            flowId: vars.metadata.flowId,&#10;            correlationId: vars.metadata.correlationId&#10;        }&#10;    }&#10;}]" category="${app.name}" />
+		<sys-database-api:retrieve-users doc:name="Retrieve users" doc:id="cf1185ec-43b7-4804-b664-36f386443d35" config-ref="Sys_database_Config"/>
+		<set-variable value="#[payload]" doc:name="[users]" doc:id="695dd5c4-d2eb-4123-b119-e91836708f16" variableName="users" />
+		<set-variable value='#[output json&#10;&#10;---&#10;&#10;(payload.level distinctBy  (value) -&gt; { "unique" : value }) as Array]' doc:name="[levels]" doc:id="e4e2596a-efc3-448a-a8ff-e4a7b8626075" variableName="levels" />
+		<set-variable value="#[[]]" doc:name="init [climbingConditions]" doc:id="454b2e84-d373-45a6-97b2-a010bfb7fe97" variableName="climbingConditions" />
+		<foreach doc:name="For Each [levels]" doc:id="9fea0d0c-d5ac-469b-a5d4-76bf621a3ec4" collection="#[vars.levels]">
+			<set-variable value="#[payload]" doc:name="[level]" doc:id="1f316b6a-4f65-48cf-a2b4-695461417b5c" variableName="level" />
+			<flow-ref doc:name="impl-get-climbingSpots" doc:id="ea09e9f7-341b-447c-ba02-507c9b2833be" name="impl-get-climbingSpots" />
+			<logger level="INFO" doc:name="After weathers request" doc:id="77369353-4c53-4225-94af-5873d3edaf59" message='#[output json indent=false&#10; ---&#10;{&#10;	step: "After weathers request $(vars.counter)/$(sizeOf(vars.coordinates))",&#10;	data: {&#10;		business: {&#10;			movieId: payload.id&#10;		},&#10;		technical: {}&#10;	}&#10;}]' category="${app.name}" />
+			<set-variable value="#[output json&#10;---&#10;vars.climbingConditions as Array &lt;&lt; payload]" doc:name="append [climbingConditions]" doc:id="3d901d47-e846-44e9-bc6f-16e3511e9558" variableName="climbingConditions" />
+		</foreach>
+		<logger level="DEBUG" doc:name="After Climbing-spots Retrieved" doc:id="9848e2e4-88c7-4df0-bc22-eaaa8269d116" message='#[%dw 2.0&#10;output json indent=false&#10;&#10;---&#10;{&#10; step: "After Areas Retrieved",&#10; data: {&#10;  business: {&#10;  	data: payload&#10;  },&#10;  technical: {}&#10; }&#10;}]' category="${app.name}" />
+		<!-- [STUDIO:"Matching Users & CDM by Levels"]<ee:transform doc:name="Matching Users &amp; CDM by Levels" doc:id="156f760d-28ef-4058-97b3-2904a1ce1ecf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+&#45;&#45;-
+{
+}&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform> [STUDIO] -->
+		<logger level="DEBUG" doc:name="End" doc:id="4b32509b-3df7-43e2-936e-65e36925131e" message="#[%dw 2.0&#10;output json indent=false&#10;&#10;---&#10;{&#10; step: vars.metadata.endStep,&#10; data: {&#10;  business: {},&#10;  technical: {}&#10; }&#10;}]" category="${app.name}" />
+	</sub-flow>
 	<sub-flow name="impl-get-climbingSpots" doc:id="c6efcb65-0b81-457f-aedb-3b3e4f3f17f2" >
 		<logger level="DEBUG" doc:name="Start" doc:id="fcbbede9-3be8-4401-ae83-9303f174cdf4" message="#[%dw 2.0&#10;output application/json indent=false&#10;---&#10;{&#10;    step: vars.metadata.startStep,&#10;    data: {&#10;        business: {},&#10;        technical: {&#10;            flowId: vars.metadata.flowId,&#10;            correlationId: vars.metadata.correlationId&#10;        }&#10;    }&#10;}]" category="${app.name}" />
 		<sys-openbeta:retrieve-areas doc:name="Retrieve areas" doc:id="3321618b-ef57-44c1-8fa3-ac7fe58c455b" config-ref="Sys_openbeta_Config" region="#[vars.region]" level="#[vars.level]"/>
+		<set-payload value="#[payload.data]" doc:name="Set Payload" doc:id="c6dc33cd-82cd-4632-a3ec-07b67ee18a01" />
 		<logger level="DEBUG" doc:name="After Areas Retrieved" doc:id="0ca1a5e2-fddc-4eb1-8077-4550dfd814ab" message='#[%dw 2.0&#10;output json indent=false&#10;&#10;---&#10;{&#10; step: "After Areas Retrieved",&#10; data: {&#10;  business: {&#10;  	data: payload&#10;  },&#10;  technical: {}&#10; }&#10;}]' category="${app.name}" />
-		<set-variable value="#[payload.*coordinates as Array]" doc:name="[coordinates]" doc:id="9ea76fc0-9337-422a-bcef-34e0933507e5" variableName="coordinates" />
+		<set-variable value="#[payload]" doc:name="[areas]" doc:id="029b358f-e96a-406c-81f6-eb4e32368a0a" variableName="areas" />
+		<set-variable value="#[payload.coordinates as Array]" doc:name="[coordinates]" doc:id="9ea76fc0-9337-422a-bcef-34e0933507e5" variableName="coordinates" />
 		<set-variable value="#[[]]" doc:name="init [weathers]" doc:id="a6516eef-49bc-4aba-9ee2-0368059e40b6" variableName="weathers" />
-		<foreach doc:name="For Each [coordinates]" doc:id="4d62d06d-9f2f-408f-878f-a343581476c3" collection="vars.coordinates">
+		<foreach doc:name="For Each [coordinates]" doc:id="4d62d06d-9f2f-408f-878f-a343581476c3" collection="#[vars.coordinates]">
 			<set-variable value="#[payload]" doc:name="[coordinate]" doc:id="1ce2b0b4-514e-41bc-b06f-773b2e878cfd" variableName="coordinate" />
-			<sys-weathers:retrieve-weathers doc:name="Retrieve weathers" doc:id="d46e3a9d-459e-4c3f-9366-fef46d0a9c3a" config-ref="Sys_weathers_Config" latitude="#[payload.latitude]" longitude="#[payload.longitude]"/>
-			<logger level="INFO" doc:name="After weathers request" doc:id="84a7f5ae-cc81-421a-8dd4-05490f5a0998" message='#[output json indent=false&#10; ---&#10;{&#10;	step: "After weathers request $(vars.counter)/$(sizeOf(vars.coordinates))",&#10;	data: {&#10;		business: {&#10;			movieId: payload.id&#10;		},&#10;		technical: {}&#10;	}&#10;}]' category="${app.name}" />
-			<set-variable value="#[output json&#10;---&#10;vars.coordinates as Array &lt;&lt; payload]" doc:name="append [coordinates]" doc:id="da007792-e0f2-4bf0-a0bc-a12da4876f73" variableName="coordinates" />
+			<sys-weathers:retrieve-weathers doc:name="Retrieve weathers" doc:id="d46e3a9d-459e-4c3f-9366-fef46d0a9c3a" config-ref="Sys_weathers_Config" latitude='#[vars.coordinate.latitude default ""]' longitude='#[vars.coordinate.longitude default ""]' date='#[vars.date default ""]'/>
+			<logger level="INFO" doc:name="After weathers request" doc:id="84a7f5ae-cc81-421a-8dd4-05490f5a0998" message='#[output json indent=false&#10; ---&#10;{&#10;	step: "After weathers request $(vars.counter)/$(sizeOf(vars.coordinates))",&#10;	data: {&#10;		business: {&#10;			coordinates: payload&#10;		},&#10;		technical: {}&#10;	}&#10;}]' category="${app.name}" />
+			<set-variable value="#[output json&#10;---&#10;vars.weathers as Array &lt;&lt; payload.data]" doc:name="append [weathers]" doc:id="da007792-e0f2-4bf0-a0bc-a12da4876f73" variableName="weathers" />
 		</foreach>
-		<ee:transform doc:name="WDM &amp; ADM to CDM" doc:id="6e89860d-b601-4c2a-baca-258cc7f5aa80">
-			<ee:message>
-				<ee:set-payload resource="modules/TMDBtoMDM.dwl" />
+		<ee:transform doc:name="ADM &amp; WDM to CDM" doc:id="84fcfffb-3ad0-4f23-b3c3-41c54f6bdc71" >
+			<ee:message >
+				<ee:set-payload resource="modules/CDM.dwl" />
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="After mapping to CDM" doc:id="19f064b9-f34d-478c-b02c-5589a9377767" message='#[output json indent=false &#10;---&#10;{&#10;	step: "After mapping to CDM",&#10;	data: {&#10;		business: {&#10;			moviesIds: payload.*coordinates,&#10;			moviesCount: sizeOf(payload)&#10;		},&#10;		technical: {}&#10;	}&#10;}]' category="${app.name}" />
