@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="MULE_LIB/10339a90-b6cf-4a68-8cc1-ec2e54f05373/mule-plugin-sys-notifications-api/1.0.3"/>
 	<classpathentry kind="con" path="MULE_LIB/10339a90-b6cf-4a68-8cc1-ec2e54f05373/mule-plugin-sys-database-api/1.0.4"/>
 	<classpathentry kind="con" path="MULE_LIB/10339a90-b6cf-4a68-8cc1-ec2e54f05373/mule-plugin-sys-weathers/1.0.3"/>
 	<classpathentry kind="con" path="MULE_LIB/10339a90-b6cf-4a68-8cc1-ec2e54f05373/mule-plugin-sys-openbeta/1.0.8"/>

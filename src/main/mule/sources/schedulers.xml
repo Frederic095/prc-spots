@@ -6,7 +6,7 @@
 	<flow name="impl-schedulers" doc:id="97806553-643c-4b70-94fd-2d58c7ddb699" >
 		<scheduler doc:name="Scheduler" doc:id="13f27734-ab92-4a7d-83f9-e4e66c3ee36b" >
 			<scheduling-strategy >
-				<cron expression="0 0 10 ? * MON"/>
+				<fixed-frequency frequency="30000" />
 			</scheduling-strategy>
 		</scheduler>
 		<flow-ref doc:name="Flow Reference" doc:id="9c0e6262-f89b-4fb0-8191-bb559ac1db0f" name="impl-post-alerts"/>
