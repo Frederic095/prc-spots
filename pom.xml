@@ -8,11 +8,11 @@
 		<version>1.0.0</version>
 	</parent>
 	<groupId>10339a90-b6cf-4a68-8cc1-ec2e54f05373</groupId>
-	<artifactId>prc-spots</artifactId>
-	<version>1.0.3</version>
+	<artifactId>prc-spots-api</artifactId>
+	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
-	<name>prc-spots</name>
+	<name>prc-spots-api</name>
 
 	<description/>
 	<build>
