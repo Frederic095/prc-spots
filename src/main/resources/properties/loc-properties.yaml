@@ -5,6 +5,8 @@ autodiscoveryId: "000000"
 # Listener
 https:
   port: "8081"
+  
+response-timeout: "30000"
 ################################
 
 protocol: "HTTP"

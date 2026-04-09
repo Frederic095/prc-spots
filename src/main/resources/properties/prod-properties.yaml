@@ -1,10 +1,12 @@
 ################################
 # API Manager
-autodiscoveryId: "20836181"
+autodiscoveryId: "20836380"
 
 # Listener
 https:
   port: "8081"
+  
+response-timeout: "30000"
 ################################
 
 protocol: "HTTPS"
@@ -19,7 +21,7 @@ weathers:
   host: "sys-weathers-pfuasv.5sc6y6-4.usa-e2.cloudhub.io"
   port: "443"
   client-id: "01eb23f5395b423c9dcc6801a423e9e6"
-  client-secret: 7611FF37b50F4c77b69Fc9185b100b6a"
+  client-secret: "7611FF37b50F4c77b69Fc9185b100b6a"
 
 db:
   host: "sys-database-pfuasv.5sc6y6-2.usa-e2.cloudhub.io"

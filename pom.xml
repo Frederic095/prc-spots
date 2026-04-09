@@ -8,11 +8,11 @@
 		<version>1.0.0</version>
 	</parent>
 	<groupId>10339a90-b6cf-4a68-8cc1-ec2e54f05373</groupId>
-	<artifactId>prc-spots-api</artifactId>
+	<artifactId>prc-spots-api-frederic</artifactId>
 	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
-	<name>prc-spots-api</name>
+	<name>prc-spots-api-frederic</name>
 
 	<description/>
 	<build>
@@ -43,13 +43,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>10339a90-b6cf-4a68-8cc1-ec2e54f05373</groupId>
-			<artifactId>prc-spots</artifactId>
-			<version>1.0.2</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
-			<groupId>10339a90-b6cf-4a68-8cc1-ec2e54f05373</groupId>
 			<artifactId>mule-plugin-sys-openbeta</artifactId>
 			<version>1.0.8</version>
 			<classifier>mule-plugin</classifier>
@@ -71,6 +64,13 @@
 			<artifactId>mule-plugin-sys-notifications-api</artifactId>
 			<version>1.0.3</version>
 			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>10339a90-b6cf-4a68-8cc1-ec2e54f05373</groupId>
+			<artifactId>prc-spots</artifactId>
+			<version>1.0.3</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
 		</dependency>
 	</dependencies>
 
